@@ -1,63 +1,117 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project overview
 
-## Project Overview
+Spendly is a lightweight personal expense tracker built with Flask and SQLite.
 
-Spendly is a personal finance / expense-tracking web application built with Flask (Python backend) and plain HTML/CSS/JS (frontend). It is structured as a step-by-step learning project: the frontend and route scaffolding are largely in place, and students progressively implement the backend.
+---
 
-## Development Commands
+## Architecture
+```
+spendly/
+├── app.py              # All routes — single file, no blueprints
+├── database/
+│   └── db.py           # SQLite helpers: get_db(), init_db(), seed_db()
+├── templates/
+│   ├── base.html       # Shared layout — all templates must extend this
+│   └── *.html          # One template per page
+├── static/
+│   ├── css/
+│   │   ├── style.css       # Global styles
+│   │   └── landing.css     # Landing-page-only styles
+│   └── js/
+│       └── main.js         # Vanilla JS only
+└── requirements.txt
+```
 
+**Where things belong:**
+- New routes → `app.py` only, no blueprints
+- DB logic → `database/db.py` only, never inline in routes
+- New pages → new `.html` file extending `base.html`
+- Page-specific styles → new `.css` file, not inline `<style>` tags
+
+---
+
+## Code style
+
+- Python: PEP 8, snake_case for all variables and functions
+- Templates: Jinja2 with `url_for()` for every internal link — never hardcode URLs
+- Route functions: one responsibility only — fetch data, render template, done
+- DB queries: always use parameterized queries (`?` placeholders) — never f-strings in SQL
+- Error handling: use `abort()` for HTTP errors, not bare `return "error string"`
+
+---
+
+## Tech constraints
+
+- **Flask only** — no FastAPI, no Django, no other web frameworks
+- **SQLite only** — no PostgreSQL, no SQLAlchemy ORM, no external DB
+- **Vanilla JS only** — no React, no jQuery, no npm packages
+- **No new pip packages** — work within `requirements.txt` as-is unless explicitly told otherwise
+- Python 3.10+ assumed — f-strings and `match` statements are fine
+
+---
+
+## Subagent Policy
+- Always use a builtin explore subagent for codebase exploration 
+  before implementing any new feature
+- Always use a subagent to verify test results 
+  after any implementation
+- When asked to plan, delegate codebase research 
+  to a subagent before presenting the plan
+- always use a builtin plan subagent in plan mode
+
+---
+
+## Commands
 ```bash
-# Activate the virtual environment
-source venv/bin/activate
+# Setup
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-# Run the development server (port 5001, debug mode)
+# Run dev server (port 5001)
 python app.py
 
 # Run all tests
 pytest
 
-# Run a single test file
-pytest tests/test_auth.py
+# Run a specific test file
+pytest tests/test_foo.py
 
-# Run a single test function
-pytest tests/test_auth.py::test_login_success
+# Run a specific test by name
+pytest -k "test_name"
+
+# Run tests with output visible
+pytest -s
 ```
 
-Dependencies are managed via `requirements.txt` (Flask 3.1.3, Werkzeug 3.1.6, pytest 8.3.5, pytest-flask 1.3.0). There is no build step — this is a pure Python/Jinja2 app.
+---
 
-## Architecture
+## Implemented vs stub routes
 
-```
-app.py               Flask app and all route definitions
-database/
-  db.py              SQLite helpers: get_db(), init_db(), seed_db()
-templates/           Jinja2 templates
-  base.html          Global layout (navbar, footer, font/CSS/JS links)
-  landing.html       Marketing / home page
-  login.html         Login form
-  register.html      Registration form
-  terms.html         Terms & Conditions
-  privacy.html       Privacy Policy
-static/
-  css/style.css      Single stylesheet with CSS custom-property design system
-  js/main.js         Vanilla JS (currently minimal)
-```
+| Route | Status |
+|---|---|
+| `GET /` | Implemented — renders `landing.html` |
+| `GET /register` | Implemented — renders `register.html` |
+| `GET /login` | Implemented — renders `login.html` |
+| `GET /logout` | Stub — Step 3 |
+| `GET /profile` | Stub — Step 4 |
+| `GET /expenses/add` | Stub — Step 7 |
+| `GET /expenses/<id>/edit` | Stub — Step 8 |
+| `GET /expenses/<id>/delete` | Stub — Step 9 |
 
-**Database:** SQLite, file named `expense_tracker.db` (git-ignored). All DB access goes through `database/db.py`. `get_db()` must return a connection with `row_factory = sqlite3.Row` and `PRAGMA foreign_keys = ON`. Tables to create: Users, Expenses, Categories, Budgets.
+**Do not implement a stub route unless the active task explicitly targets that step.**
 
-**Routing convention:** All routes live in `app.py`. Placeholder routes return plain strings with a step label (e.g., `"Logout — coming in Step 3"`); these are replaced as each feature is built.
+---
 
-**Templates:** Every page extends `base.html` using `{% extends "base.html" %}` and overrides `{% block content %}`. The base template wires in Google Fonts (DM Serif Display + DM Sans), `style.css`, and `main.js`.
+## Warnings and things to avoid
 
-**Styling:** `style.css` uses CSS custom properties defined on `:root` — ink/paper/accent/secondary-accent/danger colour tokens, consistent spacing and typography variables. Avoid inline styles; extend the existing variable system.
-
-## Implementation Steps (for context)
-
-The project is built incrementally:
-- **Step 1** – Implement `database/db.py` (`get_db`, `init_db`, `seed_db`)
-- **Step 2** – Register + Login (POST handlers, password hashing, sessions)
-- **Step 3** – Logout (`/logout`)
-- **Step 4** – Profile page (`/profile`)
-- **Steps 7–9** – Expense CRUD (`/expenses/add`, `/expenses/<id>/edit`, `/expenses/<id>/delete`)
+- **Never use raw string returns for stub routes** once a step is implemented — always render a template
+- **Never hardcode URLs** in templates — always use `url_for()`
+- **Never put DB logic in route functions** — it belongs in `database/db.py`
+- **Never install new packages** mid-feature without flagging it — keep `requirements.txt` in sync
+- **Never use JS frameworks** — the frontend is intentionally vanilla
+- **`database/db.py` is currently empty** — do not assume helpers exist until the step that implements them
+- **FK enforcement is manual** — SQLite foreign keys are off by default; `get_db()` must run `PRAGMA foreign_keys = ON` on every connection
+- The app runs on **port 5001**, not the Flask default 5000 — don't change this
