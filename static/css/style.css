@@ -533,36 +533,36 @@ a { color: inherit; text-decoration: none; }
 /* Terms page                                                          */
 /* ------------------------------------------------------------------ */
 
-.terms-section {
+.legal-section {
     padding: 4rem 2rem 5rem;
     background: var(--paper);
     min-height: calc(100vh - 60px - 100px);
 }
 
-.terms-container {
+.legal-container {
     max-width: 740px;
     margin: 0 auto;
 }
 
-.terms-header {
+.legal-header {
     margin-bottom: 2.5rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
 }
 
-.terms-title {
+.legal-title {
     font-family: var(--font-display);
     font-size: 2.4rem;
     color: var(--ink);
     margin-bottom: 0.4rem;
 }
 
-.terms-updated {
+.legal-updated {
     font-size: 0.85rem;
     color: var(--ink-muted);
 }
 
-.terms-block {
+.legal-block {
     background: var(--paper-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
@@ -570,37 +570,37 @@ a { color: inherit; text-decoration: none; }
     margin-bottom: 1.25rem;
 }
 
-.terms-block h2 {
+.legal-block h2 {
     font-family: var(--font-display);
     font-size: 1.2rem;
     color: var(--ink);
     margin-bottom: 0.75rem;
 }
 
-.terms-block p {
+.legal-block p {
     font-size: 0.95rem;
     color: var(--ink-soft);
     line-height: 1.7;
     margin-bottom: 0.75rem;
 }
 
-.terms-block p:last-child {
+.legal-block p:last-child {
     margin-bottom: 0;
 }
 
-.terms-block ul {
+.legal-block ul {
     margin: 0.5rem 0 0 1.25rem;
     padding: 0;
 }
 
-.terms-block ul li {
+.legal-block ul li {
     font-size: 0.95rem;
     color: var(--ink-soft);
     line-height: 1.7;
     margin-bottom: 0.35rem;
 }
 
-.terms-block a {
+.legal-block a {
     color: var(--accent);
     text-decoration: underline;
 }
