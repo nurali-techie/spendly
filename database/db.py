@@ -81,3 +81,13 @@ def create_user(name, email, password):
     user_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.close()
     return user_id
+
+
+def get_user_by_email(email):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT id, name, email, password_hash FROM users WHERE email = ?",
+        (email,),
+    ).fetchone()
+    conn.close()
+    return row
