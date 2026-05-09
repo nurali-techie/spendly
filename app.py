@@ -69,7 +69,7 @@ def login():
 
     session["user_id"] = user["id"]
     session["user_name"] = user["name"]
-    return redirect(url_for("landing"))
+    return redirect(url_for("profile"))
 
 
 @app.route("/terms")
@@ -94,7 +94,36 @@ def logout():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    user = {
+        "name": session["user_name"],
+        "email": "demo@spendly.com",
+        "member_since": "January 15, 2025",
+    }
+    stats = {
+        "total_spent": "₹18,240",
+        "transaction_count": 12,
+        "top_category": "Food",
+    }
+    transactions = [
+        {"date": "May 8, 2025", "description": "Grocery run",         "category": "Food",          "amount": "₹1,240"},
+        {"date": "May 7, 2025", "description": "Metro card recharge",  "category": "Transport",     "amount": "₹500"},
+        {"date": "May 6, 2025", "description": "Electricity bill",     "category": "Bills",         "amount": "₹2,100"},
+        {"date": "May 5, 2025", "description": "Doctor visit",         "category": "Health",        "amount": "₹800"},
+        {"date": "May 3, 2025", "description": "Movie tickets",        "category": "Entertainment", "amount": "₹640"},
+    ]
+    categories = [
+        {"name": "Food",          "total": "₹6,800", "pct": 37},
+        {"name": "Bills",         "total": "₹4,200", "pct": 23},
+        {"name": "Transport",     "total": "₹2,500", "pct": 14},
+        {"name": "Health",        "total": "₹1,800", "pct": 10},
+        {"name": "Entertainment", "total": "₹1,240", "pct":  7},
+        {"name": "Shopping",      "total": "₹1,700", "pct":  9},
+    ]
+    return render_template("profile.html", user=user, stats=stats,
+                           transactions=transactions, categories=categories)
 
 
 @app.route("/expenses/add")
