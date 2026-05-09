@@ -12,11 +12,11 @@ def test_get_login_returns_200(client):
     assert response.status_code == 200
 
 
-def test_login_valid_redirects_to_landing(client):
+def test_login_valid_redirects_to_profile(client):
     db_module.create_user("Test User", VALID["email"], VALID["password"])
     response = client.post("/login", data=VALID)
     assert response.status_code == 302
-    assert response.location.endswith("/")
+    assert response.location.endswith("/profile")
 
 
 def test_login_valid_sets_session(client):
