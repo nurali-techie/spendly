@@ -39,53 +39,57 @@
         </div>
     </div>
 
-    <!-- 3. Transaction history -->
-    <div class="profile-section">
-        <h2 class="section-heading">
-            <i data-lucide="credit-card"></i>
-            Recent transactions
-        </h2>
-        <table class="txn-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Description</th>
-                    <th>Category</th>
-                    <th class="col-amount">Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in transactions %}
-                <tr>
-                    <td class="txn-date">{{ t.date }}</td>
-                    <td>{{ t.description }}</td>
-                    <td>
-                        <span class="category-badge badge-{{ t.category | lower }}">{{ t.category }}</span>
-                    </td>
-                    <td class="col-amount">{{ t.amount }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <div class="profile-grid">
 
-    <!-- 4. Category breakdown -->
-    <div class="profile-section">
-        <h2 class="section-heading">
-            <i data-lucide="tag"></i>
-            Spending by category
-        </h2>
-        <div class="category-list">
-            {% for c in categories %}
-            <div class="category-row">
-                <span class="category-name">{{ c.name }}</span>
-                <div class="category-bar-track">
-                    <div class="category-bar-fill" style="width: {{ c.pct }}%"></div>
-                </div>
-                <span class="category-total">{{ c.total }}</span>
-            </div>
-            {% endfor %}
+        <!-- 3. Transaction history -->
+        <div class="profile-section">
+            <h2 class="section-heading">
+                <i data-lucide="credit-card"></i>
+                Recent transactions
+            </h2>
+            <table class="txn-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th class="col-amount">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td class="txn-date">{{ t.date }}</td>
+                        <td>{{ t.description }}</td>
+                        <td>
+                            <span class="category-badge badge-{{ t.category | lower }}">{{ t.category }}</span>
+                        </td>
+                        <td class="col-amount">{{ t.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
+
+        <!-- 4. Category breakdown -->
+        <div class="profile-section">
+            <h2 class="section-heading">
+                <i data-lucide="tag"></i>
+                Spending by category
+            </h2>
+            <div class="category-list">
+                {% for c in categories %}
+                <div class="category-row">
+                    <span class="category-name">{{ c.name }}</span>
+                    <div class="category-bar-track">
+                        <div class="category-bar-fill" style="width: {{ c.pct }}%"></div>
+                    </div>
+                    <span class="category-total">{{ c.total }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
     </div>
 
 </div>

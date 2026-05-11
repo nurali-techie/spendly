@@ -1,7 +1,11 @@
 import sqlite3
 from flask import Flask, render_template, redirect, request, session, url_for, abort
 from werkzeug.security import check_password_hash
-from database.db import get_db, init_db, seed_db, create_user, get_user_by_email
+from datetime import datetime
+from database.db import (
+    get_db, init_db, seed_db, create_user, get_user_by_email,
+    get_user_by_id, get_expense_stats, get_recent_expenses, get_category_breakdown,
+)
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-key"
@@ -97,31 +101,33 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
+    user_row = get_user_by_id(session["user_id"])
+    if user_row is None:
+        abort(404)
     user = {
-        "name": session["user_name"],
-        "email": "demo@spendly.com",
-        "member_since": "January 15, 2025",
+        "name":         user_row["name"],
+        "email":        user_row["email"],
+        "member_since": datetime.strptime(
+                            user_row["created_at"][:10], "%Y-%m-%d"
+                        ).strftime("%B %-d, %Y"),
     }
+    raw_stats = get_expense_stats(session["user_id"])
     stats = {
-        "total_spent": "₹18,240",
-        "transaction_count": 12,
-        "top_category": "Food",
+        "total_spent":       f"₹{raw_stats['total']:,.2f}",
+        "transaction_count": raw_stats["count"],
+        "top_category":      raw_stats["top_category"] or "—",
     }
+    raw_txns = get_recent_expenses(session["user_id"])
     transactions = [
-        {"date": "May 8, 2025", "description": "Grocery run",         "category": "Food",          "amount": "₹1,240"},
-        {"date": "May 7, 2025", "description": "Metro card recharge",  "category": "Transport",     "amount": "₹500"},
-        {"date": "May 6, 2025", "description": "Electricity bill",     "category": "Bills",         "amount": "₹2,100"},
-        {"date": "May 5, 2025", "description": "Doctor visit",         "category": "Health",        "amount": "₹800"},
-        {"date": "May 3, 2025", "description": "Movie tickets",        "category": "Entertainment", "amount": "₹640"},
+        {
+            "date":        datetime.strptime(t["date"], "%Y-%m-%d").strftime("%B %-d, %Y"),
+            "description": t["description"] or "",
+            "category":    t["category"],
+            "amount":      f"₹{t['amount']:,.2f}",
+        }
+        for t in raw_txns
     ]
-    categories = [
-        {"name": "Food",          "total": "₹6,800", "pct": 37},
-        {"name": "Bills",         "total": "₹4,200", "pct": 23},
-        {"name": "Transport",     "total": "₹2,500", "pct": 14},
-        {"name": "Health",        "total": "₹1,800", "pct": 10},
-        {"name": "Entertainment", "total": "₹1,240", "pct":  7},
-        {"name": "Shopping",      "total": "₹1,700", "pct":  9},
-    ]
+    categories = get_category_breakdown(session["user_id"])
     return render_template("profile.html", user=user, stats=stats,
                            transactions=transactions, categories=categories)
 
