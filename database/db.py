@@ -103,17 +103,22 @@ def get_user_by_id(user_id):
     return row
 
 
-def get_expense_stats(user_id):
+def get_expense_stats(user_id, date_from=None, date_to=None):
+    date_filter = ""
+    date_params = ()
+    if date_from and date_to:
+        date_filter = " AND date BETWEEN ? AND ?"
+        date_params = (date_from, date_to)
     conn = get_db()
     row = conn.execute(
         "SELECT COALESCE(SUM(amount), 0) AS total, COUNT(*) AS cnt "
-        "FROM expenses WHERE user_id = ?",
-        (user_id,),
+        "FROM expenses WHERE user_id = ?" + date_filter,
+        (user_id,) + date_params,
     ).fetchone()
     top = conn.execute(
-        "SELECT category FROM expenses WHERE user_id = ? "
+        "SELECT category FROM expenses WHERE user_id = ?" + date_filter + " "
         "GROUP BY category ORDER BY SUM(amount) DESC LIMIT 1",
-        (user_id,),
+        (user_id,) + date_params,
     ).fetchone()
     conn.close()
     return {
@@ -123,24 +128,34 @@ def get_expense_stats(user_id):
     }
 
 
-def get_recent_expenses(user_id, limit=5):
+def get_recent_expenses(user_id, limit=5, date_from=None, date_to=None):
+    date_filter = ""
+    date_params = ()
+    if date_from and date_to:
+        date_filter = " AND date BETWEEN ? AND ?"
+        date_params = (date_from, date_to)
     conn = get_db()
     rows = conn.execute(
         "SELECT date, description, category, amount "
-        "FROM expenses WHERE user_id = ? ORDER BY date DESC, id DESC LIMIT ?",
-        (user_id, limit),
+        "FROM expenses WHERE user_id = ?" + date_filter + " ORDER BY date DESC, id DESC LIMIT ?",
+        (user_id,) + date_params + (limit,),
     ).fetchall()
     conn.close()
     return rows
 
 
-def get_category_breakdown(user_id):
+def get_category_breakdown(user_id, date_from=None, date_to=None):
+    date_filter = ""
+    date_params = ()
+    if date_from and date_to:
+        date_filter = " AND date BETWEEN ? AND ?"
+        date_params = (date_from, date_to)
     conn = get_db()
     rows = conn.execute(
         "SELECT category, SUM(amount) AS cat_total "
-        "FROM expenses WHERE user_id = ? "
+        "FROM expenses WHERE user_id = ?" + date_filter + " "
         "GROUP BY category ORDER BY cat_total DESC",
-        (user_id,),
+        (user_id,) + date_params,
     ).fetchall()
     conn.close()
     if not rows:
